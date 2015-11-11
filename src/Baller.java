@@ -35,7 +35,7 @@ public class Baller extends Application
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			// create the stage with the given title and the previously created
 			// scene
-			primaryStage.setTitle("Ball Detection");
+			primaryStage.setTitle("Object detction");
 			primaryStage.setScene(scene);
 			// show the GUI
 			primaryStage.show();
