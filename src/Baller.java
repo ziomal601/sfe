@@ -7,8 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.fxml.FXMLLoader;
 
-public class Baller extends Application
-{
+public class Baller extends Application {
 	/**
 	 * The main class for a JavaFX application. It creates and handles the main
 	 * window with its resources (style, graphics, etc.).
@@ -22,10 +21,8 @@ public class Baller extends Application
 	 * 
 	 */
 	@Override
-	public void start(Stage primaryStage)
-	{
-		try
-		{
+	public void start(Stage primaryStage) {
+		try {
 			// load the FXML resource
 			BorderPane root = (BorderPane) FXMLLoader.load(getClass().getResource("ObjRecognition.fxml"));
 			// set a whitesmoke background
@@ -39,18 +36,15 @@ public class Baller extends Application
 			primaryStage.setScene(scene);
 			// show the GUI
 			primaryStage.show();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void main(String[] args)
-	{
+
+	public static void main(String[] args) {
 		// load the native OpenCV library
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		
+
 		launch(args);
 	}
 }
