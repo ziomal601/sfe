@@ -79,7 +79,7 @@ public class ObjRecognitionController {
 
 	private DescriptorExtractor extractor;
 
-	private DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
+	private DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE);
 
 	private Mat des_object = new Mat();
 
@@ -157,11 +157,11 @@ public class ObjRecognitionController {
 
 	private void getImage() {
 
-		object = Highgui.imread("C:\\Users\\tomek\\workspace\\psw\\src\\book_opt.jpg", Highgui.CV_LOAD_IMAGE_GRAYSCALE);
+		object = Highgui.imread("C:\\Users\\tomek\\workspace\\psw\\src\\door.jpg", Highgui.CV_LOAD_IMAGE_GRAYSCALE);
 
 		des_object = new Mat();
-		this.detector = FeatureDetector.create(4);
-		this.extractor = DescriptorExtractor.create(2);
+		this.detector = FeatureDetector.create(FeatureDetector.DYNAMIC_SURF);
+		this.extractor = DescriptorExtractor.create(DescriptorExtractor.SURF);
 		keypoints_object = new MatOfKeyPoint();
 		detector.detect(object, keypoints_object);
 		extractor.compute(object, keypoints_object, des_object);
@@ -223,6 +223,7 @@ public class ObjRecognitionController {
 					// than 3*min_dist )
 					LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
 					MatOfDMatch gm = new MatOfDMatch();
+					MatOfDMatch gm1 = new MatOfDMatch();
 					// good match = distance > 2*min_distance ==> put them in a
 					// list
 					for (int i = 0; i < des_object.rows(); i++) {
