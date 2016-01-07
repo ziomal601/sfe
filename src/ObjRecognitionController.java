@@ -27,6 +27,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfDMatch;
+import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -44,6 +45,8 @@ import org.opencv.features2d.KeyPoint;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
+
+import com.sun.org.apache.bcel.internal.classfile.PMGClass;
 
 public class ObjRecognitionController {
 	// FXML camera button
@@ -157,10 +160,10 @@ public class ObjRecognitionController {
 
 	private void getImage() {
 
-		object = Highgui.imread("C:\\Users\\tomek\\workspace\\psw\\src\\door.jpg", Highgui.CV_LOAD_IMAGE_GRAYSCALE);
+		object = Highgui.imread("C:\\Users\\tomek\\workspace\\psw\\src\\door3.jpg", Highgui.CV_LOAD_IMAGE_GRAYSCALE);
 
 		des_object = new Mat();
-		this.detector = FeatureDetector.create(FeatureDetector.DYNAMIC_SURF);
+		this.detector = FeatureDetector.create(FeatureDetector.SURF);
 		this.extractor = DescriptorExtractor.create(DescriptorExtractor.SURF);
 		keypoints_object = new MatOfKeyPoint();
 		detector.detect(object, keypoints_object);
@@ -194,117 +197,107 @@ public class ObjRecognitionController {
 					Mat blurredImage = new Mat();
 					Mat image = new Mat();
 					// remove some noise
-					Imgproc.blur(frame, blurredImage, new Size(7, 7));
+					// Imgproc.blur(frame, blurredImage, new Size(7, 7));
 
 					// convert the frame to HSV
-					Imgproc.cvtColor(blurredImage, image, Imgproc.COLOR_RGBA2GRAY);
-					MatOfKeyPoint keypoints_scene = new MatOfKeyPoint();
-					detector.detect(image, keypoints_scene);
-					extractor.compute(image, keypoints_scene, des_image);
-					MatOfDMatch matches = new MatOfDMatch();
-					matcher.match(des_object, des_image, matches);
-					// get thresholding values from the UI
-					// remember: H ranges 0-180, S and V range 0-255
+					Mat dst = new Mat();
 
-					List<DMatch> matchesList = matches.toList();
-					// -- Draw only "good" matches (i.e. whose distance is less
-					// than 3*min_dist )
-					Double max_dist = 0.6;
-					Double min_dist = 100.0;
-					for (int i = 0; i < des_object.rows(); i++) {
-						Double dist = (double) matchesList.get(i).distance;
-
-						if (dist < min_dist)
-							min_dist = dist;
-						if (dist > max_dist)
-							max_dist = dist;
-					}
-					// -- Draw only "good" matches (i.e. whose distance is less
-					// than 3*min_dist )
-					LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
-					MatOfDMatch gm = new MatOfDMatch();
-					MatOfDMatch gm1 = new MatOfDMatch();
-					// good match = distance > 2*min_distance ==> put them in a
-					// list
-					for (int i = 0; i < des_object.rows(); i++) {
-						if (matchesList.get(i).distance < 2 * min_dist) {
-							good_matches.addLast(matchesList.get(i));
+					Imgproc.Canny(frame, image, 50, 200);
+					Imgproc.cvtColor(image, dst, Imgproc.COLOR_GRAY2BGR);
+					
+					ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+					Mat hierarchy = new Mat();
+					Imgproc.findContours(image, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+					ArrayList<List<Point>> rect= new ArrayList<List<Point>>();
+					System.out.println(contours.size());
+					for (int i = 0; i < contours.size(); i++){
+						
+						MatOfPoint2f   approxCurve =new  MatOfPoint2f();
+						MatOfPoint2f point2f = new MatOfPoint2f(contours.get(i).toArray());
+						
+						System.out.println(point2f.cols()+ " con"+contours.get(i).cols()+" cos: "+point2f.toList());
+						
+						Imgproc.approxPolyDP(point2f, approxCurve,Imgproc.arcLength(point2f,true)*0.02, true);
+						System.out.println("aprox: "+approxCurve.toList().size());
+						if(approxCurve.toList().size() == 4){
+							
+							List<Point> points = new ArrayList<Point>();
+							points = approxCurve.toList();
+							  double maxCosine = 0;
+							 for( int j = 2; j < 5; j++ )
+						        {
+						            double cosine = Math.abs(angle(points.get(j%4), points.get(j-2),points.get(j-1)));
+						            maxCosine = Math.max(maxCosine, cosine);
+						        }
+							 System.out.println("cosinus"+maxCosine);
+							 if( maxCosine < 0.3 ){
+								 System.out.println(maxCosine);
+								 rect.add(points);
+							 }
 						}
+						
 					}
-					// List -> Mat
-					gm.fromList(good_matches);
+					
+					for (List <Point> matOfPoint : rect) {
+						Core.line(dst, matOfPoint.get(0), matOfPoint.get(1), new Scalar(0,255,0));
+						Core.line(dst, matOfPoint.get(1), matOfPoint.get(2), new Scalar(0,255,0));
+						Core.line(dst, matOfPoint.get(2), matOfPoint.get(3), new Scalar(0,255,0));
+						Core.line(dst, matOfPoint.get(3), matOfPoint.get(0), new Scalar(0,255,0));
+					}
+					imageToShow = mat2Image(dst);
+					
+					
+					
+					Mat lines = new Mat();
+					int threshold = 50;
+					int minLineSize = 50;
+					int lineGap = 10;
+					/*
+					Imgproc.HoughLinesP(image, lines, 1, Math.PI / 180, threshold, minLineSize, lineGap);
 
-					// -- Get the keypoints from the good matches
-					Mat img_matches = new Mat();
-					Features2d.drawMatches(object, keypoints_object, image, keypoints_scene, gm, img_matches);
+					double[] data;
+					double rho, theta;
+					Point pt1 = new Point();
+					Point pt2 = new Point();
+					double a, b;
+					double x0, y0;
+
 				
-					if (good_matches.size() > 3) {
-						// filter keypoints (use only good matches); First in a
-						// List, iterate, afterwards ==> Mat
-						LinkedList<Point> objList = new LinkedList<Point>();
-						LinkedList<Point> sceneList = new LinkedList<Point>();
-						List<KeyPoint> keypoints_objectList = keypoints_object.toList();
-						List<KeyPoint> keypoints_sceneList = keypoints_scene.toList();
-						for (int i = 0; i < good_matches.size(); i++) {
-							objList.addLast(keypoints_objectList.get(good_matches.get(i).queryIdx).pt);
-							sceneList.addLast(keypoints_sceneList.get(good_matches.get(i).trainIdx).pt);
-							/**
-							 * objList.addLast(keypoints_objectList.get(
-							 * good_matches.get(i).trainIdx).pt);
-							 * sceneList.addLast(keypoints_sceneList.get(
-							 * good_matches.get(i).queryIdx).pt);
-							 */
+					ArrayList<Point> corners = new ArrayList<Point>();
+					for (int x = 0; x < lines.cols(); x++) {
+						double[] vec = lines.get(0, x);
+						double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
+						Point start = new Point(x1, y1);
+						Point end = new Point(x2, y2);
+
+						Core.line(dst, start, end, new Scalar(255, 0, 0), 3);
+						for (int j = x + 1; j < lines.cols(); j++) {
+							double[] vecq = lines.get(0, j);
+							Point pt = computeIntersect(vec, vecq);
+							if (pt.x >= 0 && pt.y >= 0)
+								corners.add(pt);
 						}
-						MatOfPoint2f obj = new MatOfPoint2f();
-						obj.fromList(objList);
-						MatOfPoint2f scene = new MatOfPoint2f();
-						scene.fromList(sceneList);
-						// calc transformation matrix; method = 8 (RANSAC)
-						// ransacReprojThreshold=3
-						Mat hg = Calib3d.findHomography(obj, scene, 8, 3);
-						// -- Get the corners from the image_1 ( the object to
-						// be "detected" )
-						Mat obj_corners = new Mat(4, 1, CvType.CV_32FC2);
-						Mat scene_corners = new Mat(4, 1, CvType.CV_32FC2);
-						// obj
-						obj_corners.put(0, 0, new double[] { 0, 0 });
-						obj_corners.put(1, 0, new double[] { object.cols(), 0 });
-						obj_corners.put(2, 0, new double[] { object.cols(), object.rows() });
-						obj_corners.put(3, 0, new double[] { 0, object.rows() });
-						// transform obj corners to scene_img (stored in
-						// scene_corners)
-						Core.perspectiveTransform(obj_corners, scene_corners, hg);
-						// move points for img_obg width to the right to fit the
-						// matching image
-
-						Point p1 = new Point(scene_corners.get(0, 0)[0] + object.cols(), scene_corners.get(0, 0)[1]);
-						Point p2 = new Point(scene_corners.get(1, 0)[0] + object.cols(), scene_corners.get(1, 0)[1]);
-						Point p3 = new Point(scene_corners.get(2, 0)[0] + object.cols(), scene_corners.get(2, 0)[1]);
-						Point p4 = new Point(scene_corners.get(3, 0)[0] + object.cols(), scene_corners.get(3, 0)[1]);
-						// create the matching image
-
-						Core.line(img_matches, p1, p2, new Scalar(0, 255, 0), 4);
-						Core.line(img_matches, p2, p3, new Scalar(0, 255, 0), 4);
-						Core.line(img_matches, p3, p4, new Scalar(0, 255, 0), 4);
-						Core.line(img_matches, p4, p1, new Scalar(0, 255, 0), 4);
-
-						// draw lines to the matching image
-						/*
-						 * MatOfRect detections = new MatOfRect();
-						 * detections.diag(img_matches); for (Rect rect :
-						 * detections.toArray()) {
-						 * System.out.println("running");
-						 * Core.rectangle(img_matches, new Point(rect.x,
-						 * rect.y), new Point(rect.x + rect.width, rect.y +
-						 * rect.height),new Scalar(0, 255, 0)); }
-						 */
-
-						// find the tennis ball(s) contours and show them
-						// frame = this.findAndDrawBalls(morphOutput, frame);
-
-						// convert the Mat object (OpenCV) to Image (JavaFX)
 					}
-					imageToShow = mat2Image(img_matches);
+					for (Point point : corners) {
+						Core.circle(dst, point, 5,  new Scalar(0, 0, 255),3);
+					}
+					*/
+					/*MatOfPoint2f   approxCurve =new  MatOfPoint2f();
+					MatOfPoint2f   cornersCopy =new  MatOfPoint2f();
+					cornersCopy.fromList(corners);
+					Imgproc.approxPolyDP(cornersCopy, approxCurve,Imgproc.arcLength(cornersCopy,true)*0.02, true);
+					if(approxCurve.cols() != 4){
+						System.out.println("Not quadratic");
+					}
+					else if(approxCurve.cols() == 4){
+						System.out.println("Quadratic");
+					}
+					
+					
+					System.out.println(approxCurve.cols());
+					*/
+					imageToShow = mat2Image(dst);
+
 				}
 
 			} catch (Exception e) {
@@ -328,6 +321,29 @@ public class ObjRecognitionController {
 	 *            objects contours
 	 * @return the {@link Mat} image with the objects contours framed
 	 */
+	
+	Double angle( Point pt1, Point pt2, Point pt0 )
+	{
+	    double dx1 = pt1.x - pt0.x;
+	    double dy1 = pt1.y - pt0.y;
+	    double dx2 = pt2.x - pt0.x;
+	    double dy2 = pt2.y - pt0.y;
+	    return (dx1*dx2 + dy1*dy2)/Math.sqrt((dx1*dx1 + dy1*dy1)*(dx2*dx2 + dy2*dy2) + 1e-10);
+	}
+	
+	Point computeIntersect(double[] a, double[] b) {
+		double x1 = a[0], y1 = a[1], x2 = a[2], y2 = a[3];
+		double x3 = b[0], y3 = b[1], x4 = b[2], y4 = b[3];
+		double d = ((double) (x1 - x2) * (y3 - y4)) - ((y1 - y2) * (x3 - x4));
+		if (d > 0) {
+			Point pt = new Point();
+			pt.x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d;
+			pt.y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d;
+			return pt;
+		} else
+			return new Point(-1.0, -1.0);
+	}
+
 	private Mat findAndDrawBalls(Mat maskedImage, Mat frame) {
 		// init
 		List<MatOfPoint> contours = new ArrayList<>();
