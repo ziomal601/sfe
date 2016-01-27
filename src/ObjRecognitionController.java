@@ -205,208 +205,224 @@ public class ObjRecognitionController {
 
 					// convert the frame to HSV
 					Mat dst = new Mat();
+					int ka =0;
+					for (int p = 1; p <= 399; p++) {
+						System.out.println(String.format("%04d", p));
+						frame =  Highgui.imread("C:\\Users\\tomek\\workspace\\psw\\src\\video2\\video2\\image-"+String.format("%04d", p)+".jpg");
+					
+						Imgproc.Canny(frame, image, 50, 200);
+						Imgproc.cvtColor(image, dst, Imgproc.COLOR_GRAY2BGR);
 
-					Imgproc.Canny(frame, image, 50, 200);
-					Imgproc.cvtColor(image, dst, Imgproc.COLOR_GRAY2BGR);
+						/*
+						 * ArrayList<MatOfPoint> contours = new
+						 * ArrayList<MatOfPoint>(); Mat hierarchy = new Mat();
+						 * Imgproc.findContours(image, contours, hierarchy,
+						 * Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+						 * ArrayList<List<Point>> rect = new
+						 * ArrayList<List<Point>>();
+						 * System.out.println(contours.size()); for (int i = 0;
+						 * i < contours.size(); i++) {
+						 * 
+						 * MatOfPoint2f approxCurve = new MatOfPoint2f();
+						 * MatOfPoint2f point2f = new
+						 * MatOfPoint2f(contours.get(i).toArray());
+						 * 
+						 * System.out.println( point2f.cols() + " con" +
+						 * contours.get(i).cols() + " cos: " +
+						 * point2f.toList());
+						 * 
+						 * Imgproc.approxPolyDP(point2f, approxCurve,
+						 * Imgproc.arcLength(point2f, true) * 0.02, true);
+						 * System.out.println("aprox: " +
+						 * approxCurve.toList().size());
+						 * 
+						 * MatOfPoint pointsq = new
+						 * MatOfPoint(approxCurve.toArray());
+						 * 
+						 * // Get bounding rect of contour Rect recta
+						 * =Imgproc.boundingRect(pointsq);
+						 * 
+						 * // draw enclosing rectangle (all same color, but you
+						 * 
+						 * Core.rectangle(frame, new Point(recta.x, recta.y),
+						 * new Point(recta.x + recta.width, recta.y +
+						 * recta.height), new Scalar(255, 0, 0, 255), 2);
+						 * 
+						 * if (approxCurve.toList().size() == 4) {
+						 * 
+						 * List<Point> points = new ArrayList<Point>(); points =
+						 * approxCurve.toList(); double maxCosine = 0; for (int
+						 * j = 2; j < 5; j++) { double cosine = Math
+						 * .abs(angle(points.get(j % 4), points.get(j - 2),
+						 * points.get(j - 1))); maxCosine = Math.max(maxCosine,
+						 * cosine); } System.out.println("cosinus" + maxCosine);
+						 * if (maxCosine < 0.3) { System.out.println(maxCosine);
+						 * rect.add(points); } }
+						 * 
+						 * }
+						 * 
+						 * for (List<Point> matOfPoint : rect) {
+						 * Core.line(frame, matOfPoint.get(0),
+						 * matOfPoint.get(1), new Scalar(0, 255, 0), 3);
+						 * Core.line(frame, matOfPoint.get(1),
+						 * matOfPoint.get(2), new Scalar(0, 255, 0), 3);
+						 * Core.line(frame, matOfPoint.get(2),
+						 * matOfPoint.get(3), new Scalar(0, 255, 0), 3);
+						 * Core.line(frame, matOfPoint.get(3),
+						 * matOfPoint.get(0), new Scalar(0, 255, 0), 3); }
+						 * 
+						 * //imageToShow = mat2Image(frame);
+						 * 
+						 * /* Mat lines = new Mat(); int threshold = 50; int
+						 * minLineSize = 50; int lineGap = 10;
+						 * 
+						 * Imgproc.HoughLinesP(image, lines, 1, Math.PI / 180,
+						 * threshold, minLineSize, lineGap);
+						 * 
+						 * double[] data; double rho, theta; Point pt1 = new
+						 * Point(); Point pt2 = new Point(); double a, b; double
+						 * x0, y0;
+						 * 
+						 * ArrayList<Point> corners = new ArrayList<Point>();
+						 * for (int x = 0; x < lines.cols(); x++) { double[] vec
+						 * = lines.get(0, x); double x1 = vec[0], y1 = vec[1],
+						 * x2 = vec[2], y2 = vec[3]; Point start = new Point(x1,
+						 * y1); Point end = new Point(x2, y2);
+						 * 
+						 * //Core.line(frame, start, end, new Scalar(255, 0, 0),
+						 * 3); for (int j = x + 1; j < lines.cols(); j++) {
+						 * double[] vecq = lines.get(0, j); Point pt =
+						 * computeIntersect(vec, vecq); if (pt.x >= 0 && pt.y >=
+						 * 0) corners.add(pt); } } for (Point point : corners) {
+						 * Core.circle(frame, point, 5, new Scalar(0, 0, 255),
+						 * 2); }
+						 */
+						/*
+						 * Collections.sort(corners,new Comparator<Point>() {
+						 * 
+						 * @Override public int compare(Point o1, Point o2) { if
+						 * (o1.x == o2.x) { return (int) (o1.y - o2.y); } else {
+						 * return (int) (o1.x - o2.x); }
+						 * 
+						 * }
+						 * 
+						 * 
+						 * });
+						 */
+						/*
+						 * ArrayList<List<Point>> rect = new
+						 * ArrayList<List<Point>>(); List<Point> goodPoint = new
+						 * ArrayList<Point>(); if (corners.size() >= 4) {
+						 * 
+						 * List<Point> points = corners;
+						 * 
+						 * double maxCosine = 0; /* for (int j = 0; j <
+						 * points.size() - 2; j++) { for (int k = 0; k <
+						 * points.size(); k++) { for (int m = 0; m <
+						 * points.size(); m++) { double cosine =
+						 * Math.abs(angle(points.get(j), points.get(k),
+						 * points.get(m))); maxCosine = Math.max(maxCosine,
+						 * cosine); if (cosine < 0.3) {
+						 * goodPoint.add(points.get(j));
+						 * goodPoint.add(points.get(k));
+						 * goodPoint.add(points.get(m)); } } } }
+						 */
+						/*
+						 * System.out.println("cosinus" + maxCosine);
+						 * 
+						 * if (maxCosine < 0.3) { System.out.println(maxCosine);
+						 * rect.add(points); } } List<Point> realyGoodPoint =
+						 * new ArrayList<Point>(); for (int i = 0; i <
+						 * goodPoint.size() - 1; i++) { if
+						 * (!realyGoodPoint.contains(goodPoint.get(i))) {
+						 * realyGoodPoint.add(goodPoint.get(i)); } } for (int i
+						 * = 0; i < realyGoodPoint.size() - 1; i++) {
+						 * 
+						 * Core.line(frame, realyGoodPoint.get(i),
+						 * realyGoodPoint.get(i + 1), new Scalar(0, 0, 255), 1);
+						 * 
+						 * }
+						 */
+						// Core.line(frame,
+						// realyGoodPoint.get(realyGoodPoint.size()
+						// - 1), realyGoodPoint.get(0), new Scalar(0, 0, 255),
+						// 1);
 
-					/*
-					 * ArrayList<MatOfPoint> contours = new
-					 * ArrayList<MatOfPoint>(); Mat hierarchy = new Mat();
-					 * Imgproc.findContours(image, contours, hierarchy,
-					 * Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-					 * ArrayList<List<Point>> rect = new
-					 * ArrayList<List<Point>>();
-					 * System.out.println(contours.size()); for (int i = 0; i <
-					 * contours.size(); i++) {
-					 * 
-					 * MatOfPoint2f approxCurve = new MatOfPoint2f();
-					 * MatOfPoint2f point2f = new
-					 * MatOfPoint2f(contours.get(i).toArray());
-					 * 
-					 * System.out.println( point2f.cols() + " con" +
-					 * contours.get(i).cols() + " cos: " + point2f.toList());
-					 * 
-					 * Imgproc.approxPolyDP(point2f, approxCurve,
-					 * Imgproc.arcLength(point2f, true) * 0.02, true);
-					 * System.out.println("aprox: " +
-					 * approxCurve.toList().size());
-					 * 
-					 * MatOfPoint pointsq = new
-					 * MatOfPoint(approxCurve.toArray());
-					 * 
-					 * // Get bounding rect of contour Rect recta
-					 * =Imgproc.boundingRect(pointsq);
-					 * 
-					 * // draw enclosing rectangle (all same color, but you
-					 * 
-					 * Core.rectangle(frame, new Point(recta.x, recta.y), new
-					 * Point(recta.x + recta.width, recta.y + recta.height), new
-					 * Scalar(255, 0, 0, 255), 2);
-					 * 
-					 * if (approxCurve.toList().size() == 4) {
-					 * 
-					 * List<Point> points = new ArrayList<Point>(); points =
-					 * approxCurve.toList(); double maxCosine = 0; for (int j =
-					 * 2; j < 5; j++) { double cosine = Math
-					 * .abs(angle(points.get(j % 4), points.get(j - 2),
-					 * points.get(j - 1))); maxCosine = Math.max(maxCosine,
-					 * cosine); } System.out.println("cosinus" + maxCosine); if
-					 * (maxCosine < 0.3) { System.out.println(maxCosine);
-					 * rect.add(points); } }
-					 * 
-					 * }
-					 * 
-					 * for (List<Point> matOfPoint : rect) { Core.line(frame,
-					 * matOfPoint.get(0), matOfPoint.get(1), new Scalar(0, 255,
-					 * 0), 3); Core.line(frame, matOfPoint.get(1),
-					 * matOfPoint.get(2), new Scalar(0, 255, 0), 3);
-					 * Core.line(frame, matOfPoint.get(2), matOfPoint.get(3),
-					 * new Scalar(0, 255, 0), 3); Core.line(frame,
-					 * matOfPoint.get(3), matOfPoint.get(0), new Scalar(0, 255,
-					 * 0), 3); }
-					 * 
-					 * //imageToShow = mat2Image(frame);
-					 * 
-					 * /* Mat lines = new Mat(); int threshold = 50; int
-					 * minLineSize = 50; int lineGap = 10;
-					 * 
-					 * Imgproc.HoughLinesP(image, lines, 1, Math.PI / 180,
-					 * threshold, minLineSize, lineGap);
-					 * 
-					 * double[] data; double rho, theta; Point pt1 = new
-					 * Point(); Point pt2 = new Point(); double a, b; double x0,
-					 * y0;
-					 * 
-					 * ArrayList<Point> corners = new ArrayList<Point>(); for
-					 * (int x = 0; x < lines.cols(); x++) { double[] vec =
-					 * lines.get(0, x); double x1 = vec[0], y1 = vec[1], x2 =
-					 * vec[2], y2 = vec[3]; Point start = new Point(x1, y1);
-					 * Point end = new Point(x2, y2);
-					 * 
-					 * //Core.line(frame, start, end, new Scalar(255, 0, 0), 3);
-					 * for (int j = x + 1; j < lines.cols(); j++) { double[]
-					 * vecq = lines.get(0, j); Point pt = computeIntersect(vec,
-					 * vecq); if (pt.x >= 0 && pt.y >= 0) corners.add(pt); } }
-					 * for (Point point : corners) { Core.circle(frame, point,
-					 * 5, new Scalar(0, 0, 255), 2); }
-					 */
-					/*
-					 * Collections.sort(corners,new Comparator<Point>() {
-					 * 
-					 * @Override public int compare(Point o1, Point o2) { if
-					 * (o1.x == o2.x) { return (int) (o1.y - o2.y); } else {
-					 * return (int) (o1.x - o2.x); }
-					 * 
-					 * }
-					 * 
-					 * 
-					 * });
-					 */
-					/*
-					 * ArrayList<List<Point>> rect = new
-					 * ArrayList<List<Point>>(); List<Point> goodPoint = new
-					 * ArrayList<Point>(); if (corners.size() >= 4) {
-					 * 
-					 * List<Point> points = corners;
-					 * 
-					 * double maxCosine = 0; /* for (int j = 0; j <
-					 * points.size() - 2; j++) { for (int k = 0; k <
-					 * points.size(); k++) { for (int m = 0; m < points.size();
-					 * m++) { double cosine = Math.abs(angle(points.get(j),
-					 * points.get(k), points.get(m))); maxCosine =
-					 * Math.max(maxCosine, cosine); if (cosine < 0.3) {
-					 * goodPoint.add(points.get(j));
-					 * goodPoint.add(points.get(k));
-					 * goodPoint.add(points.get(m)); } } } }
-					 */
-					/*
-					 * System.out.println("cosinus" + maxCosine);
-					 * 
-					 * if (maxCosine < 0.3) { System.out.println(maxCosine);
-					 * rect.add(points); } } List<Point> realyGoodPoint = new
-					 * ArrayList<Point>(); for (int i = 0; i < goodPoint.size()
-					 * - 1; i++) { if
-					 * (!realyGoodPoint.contains(goodPoint.get(i))) {
-					 * realyGoodPoint.add(goodPoint.get(i)); } } for (int i = 0;
-					 * i < realyGoodPoint.size() - 1; i++) {
-					 * 
-					 * Core.line(frame, realyGoodPoint.get(i),
-					 * realyGoodPoint.get(i + 1), new Scalar(0, 0, 255), 1);
-					 * 
-					 * }
-					 */
-					// Core.line(frame, realyGoodPoint.get(realyGoodPoint.size()
-					// - 1), realyGoodPoint.get(0), new Scalar(0, 0, 255), 1);
+						/*
+						 * for (List<Point> matOfPoint : rect) {
+						 * 
+						 * for (int i = 0; i < matOfPoint.size() - 1; i++) {
+						 * 
+						 * Core.line(frame, matOfPoint.get(i), matOfPoint.get(i
+						 * + 1), new Scalar(0, 255, 0), 3);
+						 * 
+						 * }
+						 * 
+						 * }
+						 */
+						/*
+						 * MatOfPoint2f approxCurve =new MatOfPoint2f();
+						 * MatOfPoint2f cornersCopy =new MatOfPoint2f();
+						 * cornersCopy.fromList(corners);
+						 * Imgproc.approxPolyDP(cornersCopy,
+						 * approxCurve,Imgproc.arcLength(cornersCopy,true)*0.02,
+						 * true); if(approxCurve.cols() != 4){
+						 * System.out.println( "Not quadratic"); } else
+						 * if(approxCurve.cols() == 4){
+						 * System.out.println("Quadratic"); }
+						 * 
+						 * 
+						 * System.out.println(approxCurve.cols());
+						 */
 
-					/*
-					 * for (List<Point> matOfPoint : rect) {
-					 * 
-					 * for (int i = 0; i < matOfPoint.size() - 1; i++) {
-					 * 
-					 * Core.line(frame, matOfPoint.get(i), matOfPoint.get(i +
-					 * 1), new Scalar(0, 255, 0), 3);
-					 * 
-					 * }
-					 * 
-					 * }
-					 */
-					/*
-					 * MatOfPoint2f approxCurve =new MatOfPoint2f();
-					 * MatOfPoint2f cornersCopy =new MatOfPoint2f();
-					 * cornersCopy.fromList(corners);
-					 * Imgproc.approxPolyDP(cornersCopy,
-					 * approxCurve,Imgproc.arcLength(cornersCopy,true)*0.02,
-					 * true); if(approxCurve.cols() != 4){ System.out.println(
-					 * "Not quadratic"); } else if(approxCurve.cols() == 4){
-					 * System.out.println("Quadratic"); }
-					 * 
-					 * 
-					 * System.out.println(approxCurve.cols());
-					 */
+						// Best one
 
-					// Best one
+						int match_method = Imgproc.TM_CCOEFF_NORMED;
 
-					int match_method = Imgproc.TM_CCOEFF_NORMED;
+						Mat templ = Highgui.imread("C:\\Users\\tomek\\workspace\\psw\\src\\door.jpg");
 
-					Mat templ = Highgui.imread("C:\\Users\\tomek\\workspace\\psw\\src\\door.jpg");
+						double minlocvalue = 7;
+						double maxlocvalue = 7;
 
-					double minlocvalue = 7;
-					double maxlocvalue = 7;
+						double minminvalue = 7;
+						double maxmaxvalue = 7;
 
-					double minminvalue = 7;
-					double maxmaxvalue = 7;
+						// Create the result matrix
+						int result_cols = frame.cols() - templ.cols() + 1;
+						int result_rows = frame.rows() - templ.rows() + 1;
+						Mat result = new Mat(result_rows, result_cols, CvType.CV_32FC1);
 
-					// Create the result matrix
-					int result_cols = frame.cols() - templ.cols() + 1;
-					int result_rows = frame.rows() - templ.rows() + 1;
-					Mat result = new Mat(result_rows, result_cols, CvType.CV_32FC1);
+						// / Do the Matching and Normalize
+						Imgproc.matchTemplate(frame, templ, result, match_method); //
+						Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
 
-					// / Do the Matching and Normalize
-					Imgproc.matchTemplate(frame, templ, result, match_method); //
-					Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+						// / Localizing the best match with minMaxLoc
+						MinMaxLocResult mmr = Core.minMaxLoc(result);
 
-					// / Localizing the best match with minMaxLoc
-					MinMaxLocResult mmr = Core.minMaxLoc(result);
+						System.out.println("min: " + mmr.minVal + " max: " + mmr.maxVal);
 
-					System.out.println("min: " + mmr.minVal + " max: " + mmr.maxVal);
+						Point matchLoc;
+						if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED
+								|| match_method == Imgproc.TM_CCOEFF_NORMED) {
+							matchLoc = mmr.minLoc;
+							minminvalue = mmr.minVal;
+						} else {
+							matchLoc = mmr.maxLoc;
+							maxmaxvalue = mmr.minVal;
+						}
 
-					Point matchLoc;
-					if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED
-							|| match_method == Imgproc.TM_CCOEFF_NORMED) {
-						matchLoc = mmr.minLoc;
-						minminvalue = mmr.minVal;
-					} else {
-						matchLoc = mmr.maxLoc;
-						maxmaxvalue = mmr.minVal;
+						if (mmr.maxVal > 0.55) {
+							Core.rectangle(frame, matchLoc,
+									new Point(matchLoc.x + templ.cols(), matchLoc.y + templ.rows()),
+									new Scalar(0, 255, 0), 3);
+							ka++;
+						}
+						System.out.println(ka);
+						//imageToShow = mat2Image(frame);
+						Highgui.imwrite("image"+p+".jpg", frame);
 					}
-
-					if (mmr.maxVal > 0.55) {
-						Core.rectangle(frame, matchLoc, new Point(matchLoc.x + templ.cols(), matchLoc.y + templ.rows()),
-								new Scalar(0, 255, 0), 3);
-					}
-
-					imageToShow = mat2Image(frame);
-
+					System.out.println("done: "+ka);
+					
 				}
 
 			} catch (Exception e) {
