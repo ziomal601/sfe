@@ -1,0 +1,289 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Pages</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <?php
+        if (isset($message)) {
+            echo '<div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            '.$message.'
+        </div>';
+        }
+        ?>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Pages
+            </div>
+            <!-- /.panel-heading -->
+
+            <div class="panel-body">
+                <div class="dataTable_wrapper">
+                    <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-striped table-bordered table-hover dataTable no-footer"
+                                       id="dataTables-example" role="grid" aria-describedby="dataTables-example_info">
+                                    <thead>
+                                    <tr role="row">
+                                        <th class="sorting_asc" tabindex="0" aria-controls="dataTables-example"
+                                            rowspan="1" colspan="1"
+                                            aria-label="ID: activate to sort column descending"
+                                            style="width: 287px;" aria-sort="ascending">ID
+                                        </th>
+                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1"
+                                            colspan="1" aria-label="Name: activate to sort column ascending"
+                                            style="width: 337px;">Name
+                                        </th>
+                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1"
+                                            colspan="1" aria-label="Template: activate to sort column ascending"
+                                            style="width: 308px;">Template
+                                        </th>
+                                        <th  tabindex="0" aria-controls="dataTables-example" rowspan="1"
+                                            colspan="1" aria-label="Template: activate to sort column ascending"
+                                            style="width: 308px;">Delete
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    foreach ($pages as $page) {
+                                        echo '<tr class="gradeA odd show-settings" data-page-id="' . $page['page_id'] . '" role="row">
+                                                        <td class="sorting_1">' . $page['page_id'] . '</td>
+                                                        <td class="">' . $page['name'] . '</td>
+                                                        <td class="">' . $page['template_name'] . '</td>
+                                                        <td class="" >
+                                                            <button type="button" class="btn btn-danger btn-circle btn-m delete-page" data-delete-page="' . $page['page_id'] . '"><i class="fa fa-times"></i>
+                                                            </button> 
+                                                        </td> 
+                                                   </tr>';
+
+                                    }
+                                    ?>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.table-responsive -->
+
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Add new page
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <form role="form" id="add-page">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input name="name" class="form-control" value="tada">
+                        <p class="help-block">Example block-level help text here.</p>
+                    </div>
+                    <div name template class="form-group">
+                        <label>Template</label>
+                        <select name="template" class="form-control">
+                            <option>MainTemplate</option>
+                            <option>AboutTemplate</option>
+                            <option>ProjectTemplate</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-6 -->
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Edit Page
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <?php
+                if ($edit) {
+                    echo '<form role="form" data-page-id="' . $editPageId . '" id="target">';
+                    foreach ($mainContent as $key => $value) {
+                        echo '<div class="form-group">
+                              <div class="h2">' . $key . '<button type="button" class="btn btn-danger btn-circle btn-m delete-button" data-delete-content="' . $key . '__' . $editPageId . '"><i class="fa fa-times"></i>
+                            </button></div>
+                              ';
+                        foreach ($value as $item => $name) {
+                            echo '
+                                <label>' . $item . '</label>
+                                <input name="' . $key . '__' . $item . '" class="form-control"  value="' . $name . '">
+                                
+                             ';
+                        }
+                        echo ' </div>';
+                    }
+                    echo '<button type="submit" class="btn btn-default">SAVE</button>
+                            </form>';
+
+
+                    echo '';
+                    foreach ($editable as $key => $value) {
+                        echo '
+                        <form role="form"  data-page-id="' . $editPageId . '" class="add-field">
+                            <div class="form-group">
+                               <div class="h2">' . $key . '</div>';
+                        foreach ($value as $input) {
+                            echo '
+                                <label>' . $input . '</label>
+                                <input name="' . $key . '_' . $input . '" class="form-control"  value="">
+               
+                           ';
+                        }
+
+
+                        echo ' </div>
+                           <button type="submit" class="btn btn-default">Add</button>
+                           
+                        </form>';
+                    }
+
+
+                }
+                ?>
+
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-6 -->
+</div>
+<!-- /.row -->
+<script>
+    $(document).ready(function () {
+        $('#dataTables-example').DataTable({
+            responsive: true
+        });
+        $('.show-settings').on('click', function () {
+
+            $.ajax({
+                url: "/sfe/admin/post",
+                type: "POST",
+                data: {
+                    page: 'management',
+                    action: 'show',
+                    id: $(this).data('pageId')
+                },
+                dataType: "html",
+                success: function (html) {
+                    $('#content').html(html);
+                }
+            });
+        })
+    });
+</script>
+<script>
+    $("#target").submit(function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            url: "/sfe/admin/post",
+            type: "POST",
+            data: {
+                page: 'management',
+                action: 'edit',
+                id: $(this).data('pageId'),
+                data: $('#target').serialize()
+            },
+            dataType: "html",
+            success: function (html) {
+                $('#content').html(html);
+            }
+        });
+    });
+    $(".add-field").submit(function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            url: "/sfe/admin/post",
+            type: "POST",
+            data: {
+                page: 'management',
+                action: 'addition',
+                id: $(this).data('pageId'),
+                data: $(this).serialize()
+            },
+            dataType: "html",
+            success: function (html) {
+                $('#content').html(html);
+            }
+        });
+    });
+    $("#add-page").submit(function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            url: "/sfe/admin/post",
+            type: "POST",
+            data: {
+                page: 'management',
+                action: 'new',
+                id: $(this).data('pageId'),
+                data: $(this).serialize()
+            },
+            dataType: "html",
+            success: function (html) {
+                $('#content').html(html);
+            }
+        });
+    });
+    $(".delete-button").on('click', function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            url: "/sfe/admin/post",
+            type: "POST",
+            data: {
+                page: 'management',
+                action: 'delete',
+                data: $(this).data('deleteContent')
+            },
+            dataType: "html",
+            success: function (html) {
+                $('#content').html(html);
+            }
+        });
+    });$(".delete-page").on('click', function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            url: "/sfe/admin/post",
+            type: "POST",
+            data: {
+                page: 'management',
+                action: 'deletePage',
+                data: $(this).data('deletePage')
+            },
+            dataType: "html",
+            success: function (html) {
+                $('#content').html(html);
+            }
+        });
+    });
+
+
+</script>
